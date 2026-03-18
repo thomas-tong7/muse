@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muse | ปฏิทิน</title>
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+    <style>
+        body { background: #001e43; color: white; font-family: sans-serif; padding: 10px; }
+        .container { max-width: 800px; margin: auto; background: white; color: black; padding: 15px; border-radius: 15px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: white; }
+        .back-btn { color: #00a8ff; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="/" class="back-btn">← กลับหน้าจอง</a>
+        <h2 style="margin:0">MUSE CALENDAR</h2>
+    </div>
+    <div class="container">
+        <div id='calendar'></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const response = await fetch('/api/bookings');
+            const events = await response.json();
+
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'timeGridDay', // Shows hours for today
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridDay'
+                },
+                events: events,
+                locale: 'th',
+                slotMinTime: '06:00:00', // Business starts at 6 AM
+                slotMaxTime: '24:00:00'
+            });
+            calendar.render();
+        });
+    </script>
+</body>
+</html>
