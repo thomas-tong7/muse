@@ -2,95 +2,46 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Muse | ตาราง</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muse | Schedule</title>
     <style>
-        :root { --muse-navy: #001e43; --muse-blue: #00a8ff; --glass: rgba(255, 255, 255, 0.05); --text-muted: #81a1c1; }
-        body { background: var(--muse-navy); color: white; font-family: sans-serif; margin: 0; padding: 15px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .back-btn { color: var(--muse-blue); text-decoration: none; font-weight: bold; }
-        .view-toggle { display: flex; background: #002d62; border-radius: 10px; padding: 4px; border: 1px solid var(--glass); }
-        .toggle-btn { flex: 1; padding: 8px 12px; border: none; border-radius: 8px; background: transparent; color: var(--text-muted); font-size: 13px; cursor: pointer; }
-        .toggle-btn.active { background: var(--muse-blue); color: white; }
-
-        /* Timeline View */
-        .timeline { padding-left: 15px; border-left: 2px solid rgba(0, 168, 255, 0.2); margin-left: 10px; }
-        .date-divider { color: var(--muse-blue); font-size: 12px; font-weight: bold; margin: 25px 0 10px -27px; display: flex; align-items: center; }
-        .date-divider::before { content: ''; width: 10px; height: 10px; background: var(--muse-blue); border-radius: 50%; display: inline-block; margin-right: 12px; }
-        .card { background: #002d62; border-radius: 18px; padding: 18px; margin-bottom: 12px; border: 1px solid var(--glass); }
-        .card-time { color: var(--muse-blue); font-weight: bold; font-size: 16px; margin-bottom: 4px; display: block; }
-        .card-name { font-size: 17px; margin-bottom: 6px; display: block; }
-        .card-meta { font-size: 12px; color: var(--text-muted); }
-
-        /* Month View */
-        .month-grid { display: none; background: #002d62; border-radius: 20px; padding: 15px; border: 1px solid var(--glass); }
-        .grid-container { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-        .day-label { font-size: 10px; color: var(--text-muted); text-align: center; padding: 5px 0; }
-        .day-cell { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 14px; background: rgba(255,255,255,0.02); position: relative; }
-        .day-cell.has-event { border: 1px solid var(--muse-blue); background: rgba(0,168,255,0.1); }
-        .hidden { display: none; }
+        :root { --navy: #001e43; --blue: #00a8ff; }
+        body { background: var(--navy); color: white; font-family: sans-serif; margin: 0; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .card { background: #002d62; border-radius: 20px; padding: 20px; margin-bottom: 15px; border-left: 5px solid var(--blue); position: relative; }
+        .time { color: var(--blue); font-weight: bold; font-size: 16px; }
+        .name { font-size: 20px; display: block; margin: 8px 0; font-weight: 500; }
+        .meta { font-size: 13px; color: #81a1c1; }
+        .dur-tag { position: absolute; top: 20px; right: 20px; background: rgba(0,168,255,0.1); color: var(--blue); padding: 4px 8px; border-radius: 5px; font-size: 11px; }
     </style>
 </head>
 <body>
     <div class="header">
-        <a href="/" class="back-btn">← กลับ</a>
-        <div class="view-toggle">
-            <button class="toggle-btn active" id="btnList" onclick="showView('list')">รายการ</button>
-            <button class="toggle-btn" id="btnMonth" onclick="showView('month')">รายเดือน</button>
-        </div>
+        <a href="/" style="color:var(--blue); text-decoration:none; font-weight:bold;">← กลับหน้าจอง</a>
+        <h2 style="letter-spacing:5px; margin:0; font-weight:200;">MUSE</h2>
     </div>
-
-    <div id="listView" class="timeline"></div>
-
-    <div id="monthView" class="month-grid">
-        <div style="text-align:center; margin-bottom:15px; font-weight:bold; color:var(--muse-blue);">มีนาคม 2026</div>
-        <div class="grid-container" id="grid"></div>
-    </div>
-
+    <div id="list">กำลังโหลดตาราง...</div>
     <script>
-        let bookings = [];
         async function load() {
-            const res = await fetch('/api/bookings');
-            bookings = await res.json();
-            renderList();
-            renderMonth();
-        }
-
-        function showView(v) {
-            document.getElementById('listView').style.display = (v === 'list') ? 'block' : 'none';
-            document.getElementById('monthView').style.display = (v === 'month') ? 'block' : 'none';
-            document.getElementById('btnList').classList.toggle('active', v === 'list');
-            document.getElementById('btnMonth').classList.toggle('active', v === 'month');
-        }
-
-        function renderList() {
-            const container = document.getElementById('listView');
-            container.innerHTML = '';
-            let lastDate = '';
-            bookings.slice(1).forEach(row => {
-                const [ts, name, date, start, end, mob, dur, note] = row;
-                if (date !== lastDate) {
-                    const d = new Date(date);
-                    container.innerHTML += `<div class="date-divider">${d.toLocaleDateString('th-TH',{day:'numeric', month:'short'})}</div>`;
-                    lastDate = date;
-                }
-                container.innerHTML += `<div class="card"><span class="card-time">${start} — ${end}</span><span class="card-name">${name}</span><div class="card-meta">📱 ${mob} | 📝 ${note}</div></div>`;
-            });
-        }
-
-        function renderMonth() {
-            const grid = document.getElementById('grid');
-            const labels = ['อา','จ','อ','พ','พฤ','ศ','ส'];
-            labels.forEach(l => grid.innerHTML += `<div class="day-label">${l}</div>`);
-            
-            const daysInMonth = 31; // Simplified for this example
-            const bookedDates = bookings.slice(1).map(r => r[2].split('T')[0]);
-            
-            for(let d=1; d <= daysInMonth; d++) {
-                const dateStr = `2026-03-${String(d).padStart(2,'0')}`;
-                const hasEvent = bookedDates.includes(dateStr);
-                grid.innerHTML += `<div class="day-cell ${hasEvent ? 'has-event' : ''}">${d}</div>`;
-            }
+            try {
+                const res = await fetch('/api/bookings');
+                const data = await res.json();
+                const container = document.getElementById('list');
+                if(data.length <= 1) { container.innerHTML = "ยังไม่มีข้อมูลการจอง"; return; }
+                container.innerHTML = '';
+                
+                // Show latest first
+                data.slice(1).reverse().forEach(row => {
+                    const d = new Date(row[2]).toLocaleDateString('th-TH', {day:'numeric', month:'short'});
+                    container.innerHTML += `
+                        <div class="card">
+                            <div class="dur-tag">${row[6]} ชม.</div>
+                            <span class="time">${row[3]} - ${row[4]} | ${d}</span>
+                            <span class="name">${row[1]}</span>
+                            <div class="meta">📱 ${row[5] || '-'} <br> 📝 ${row[7] || '-'}</div>
+                        </div>`;
+                });
+            } catch(e) { document.getElementById('list').innerHTML = "โหลดข้อมูลล้มเหลว"; }
         }
         load();
     </script>
