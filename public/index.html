@@ -21,53 +21,23 @@
 <body>
     <div class="muse-card">
         <div class="logo">MUSE</div>
-        
-        <div class="form-group">
-            <label>ชื่อผู้จอง</label>
-            <input type="text" id="name" placeholder="ระบุชื่อ">
-        </div>
-
-        <div class="form-group">
-            <label>เบอร์โทรศัพท์</label>
-            <input type="tel" id="mobile" placeholder="08x-xxx-xxxx">
-        </div>
-
-        <div class="form-group">
-            <label>วันที่</label>
-            <input type="date" id="date">
-        </div>
-
+        <div class="form-group"><label>ชื่อผู้จอง</label><input type="text" id="name"></div>
+        <div class="form-group"><label>เบอร์โทรศัพท์</label><input type="tel" id="mobile"></div>
+        <div class="form-group"><label>วันที่</label><input type="date" id="date"></div>
         <div style="display: flex; gap: 10px;">
-            <div class="form-group" style="flex: 2;">
-                <label>เวลาเริ่ม</label>
-                <input type="time" id="startTime" oninput="updateRange()">
-            </div>
-            <div class="form-group" style="flex: 1;">
-                <label>ระยะเวลา (ชม.)</label>
+            <div style="flex: 2;"><label>เวลาเริ่ม</label><input type="time" id="startTime" oninput="updateRange()"></div>
+            <div style="flex: 1;"><label>ระยะเวลา</label>
                 <select id="duration" onchange="updateRange()">
-                    <option value="1">1 ชม.</option>
-                    <option value="2" selected>2 ชม.</option>
-                    <option value="3">3 ชม.</option>
-                    <option value="4">4 ชม.</option>
-                    <option value="5">5 ชม.</option>
+                    <option value="1">1 ชม.</option><option value="2" selected>2 ชม.</option>
+                    <option value="3">3 ชม.</option><option value="4">4 ชม.</option>
                 </select>
             </div>
         </div>
-
-        <div class="form-group">
-            <label>หมายเหตุ</label>
-            <textarea id="notes" rows="2" placeholder="เพิ่มเติม..."></textarea>
-        </div>
-
-        <div class="slot-info">
-            <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">เวลาที่ล็อคไว้</div>
-            <span id="timeRange">กรุณาเลือกเวลา</span>
-        </div>
-
+        <div class="form-group"><label>หมายเหตุ</label><textarea id="notes" rows="2"></textarea></div>
+        <div class="slot-info"><div>เวลาที่ล็อคไว้</div><span id="timeRange">กรุณาเลือกเวลา</span></div>
         <button class="btn-reserve" onclick="submitToMuse()">ยืนยันการจอง</button>
         <a href="/calendar.html" class="nav-link">📅 ดูปฏิทินการจอง</a>
     </div>
-
     <script>
         function updateRange() {
             const start = document.getElementById('startTime').value;
@@ -79,38 +49,21 @@
             document.getElementById('timeRange').innerText = `${start} — ${endH}:${m}`;
             return `${endH}:${m}`;
         }
-
         async function submitToMuse() {
-            const endTime = updateRange();
             const payload = {
                 name: document.getElementById('name').value,
                 mobile: document.getElementById('mobile').value,
                 date: document.getElementById('date').value,
                 startTime: document.getElementById('startTime').value,
-                endTime: endTime,
+                endTime: updateRange(),
                 duration: document.getElementById('duration').value,
                 notes: document.getElementById('notes').value
             };
-
-            if (!payload.name || !payload.date || !payload.startTime) return alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-
-            const btn = document.querySelector('.btn-reserve');
-            btn.innerText = "กำลังบันทึก...";
-            btn.disabled = true;
-
+            if (!payload.name || !payload.date || !payload.startTime) return alert("กรุณากรอกข้อมูล");
             try {
-                await fetch('/api/reserve', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                alert("บันทึกข้อมูลสำเร็จ!");
-                location.reload();
-            } catch (err) {
-                alert("เกิดข้อผิดพลาด");
-                btn.innerText = "ยืนยันการจอง";
-                btn.disabled = false;
-            }
+                await fetch('/api/reserve', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+                alert("บันทึกสำเร็จ!"); location.reload();
+            } catch (err) { alert("เกิดข้อผิดพลาด"); }
         }
     </script>
 </body>
