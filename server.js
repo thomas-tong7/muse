@@ -7,7 +7,7 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // 🟢 PASTE YOUR GOOGLE WEB APP URL FROM THE DEPLOYMENT STEP HERE
-const SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyMs2lD1s3JA9K1zhsEPGWYtJuONe1N5u4F4neghav1m-Zwgwe7LlyreAAVQOe4OOg5/exec';
 
 app.post('/api/reserve', async (req, res) => {
     try {
