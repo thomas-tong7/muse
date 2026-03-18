@@ -6,31 +6,28 @@ const app = express();
 app.use(express.json());
 app.use(express.static('public'));
 
-// 🟢 PASTE YOUR NEW SCRIPT API URL HERE 🟢
+// 🟢 PASTE YOUR GOOGLE WEB APP URL HERE
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyEcUkJbWRrLXgvVyYNEDgdcyqcP2QKooYQszB1HWi3hvmR-U-1G8opqefJzpsp0GZy/exec';
 
-// 1. ROUTE TO SAVE DATA (From the Form)
+// Save Booking
 app.post('/api/reserve', async (req, res) => {
     try {
         const response = await axios.post(SCRIPT_URL, req.body);
         res.json(response.data);
     } catch (error) {
-        console.error("Error saving:", error);
-        res.status(500).json({ error: "Failed to save to Spreadsheet" });
+        res.status(500).json({ error: "Database Connection Error" });
     }
 });
 
-// 2. ROUTE TO FETCH DATA (For the Calendar)
+// Fetch Bookings for Calendar
 app.get('/api/bookings', async (req, res) => {
     try {
         const response = await axios.get(SCRIPT_URL);
         res.json(response.data);
     } catch (error) {
-        console.error("Error fetching:", error);
         res.status(500).json([]);
     }
 });
 
-// Start the server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Muse Server is Live on Port ${PORT}`));
+app.listen(PORT, () => console.log(`Muse Server Live on ${PORT}`));
