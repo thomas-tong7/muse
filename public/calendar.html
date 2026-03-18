@@ -2,48 +2,129 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Muse | Schedule</title>
     <style>
-        :root { --navy: #001e43; --blue: #00a8ff; }
-        body { background: var(--navy); color: white; font-family: sans-serif; margin: 0; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .card { background: #002d62; border-radius: 20px; padding: 20px; margin-bottom: 15px; border-left: 5px solid var(--blue); position: relative; }
-        .time { color: var(--blue); font-weight: bold; font-size: 16px; }
-        .name { font-size: 20px; display: block; margin: 8px 0; font-weight: 500; }
-        .meta { font-size: 13px; color: #81a1c1; }
-        .dur-tag { position: absolute; top: 20px; right: 20px; background: rgba(0,168,255,0.1); color: var(--blue); padding: 4px 8px; border-radius: 5px; font-size: 11px; }
+        :root { --navy: #001e43; --blue: #00a8ff; --red: #ff4d4d; --yellow: #ffcc00; --text: #81a1c1; }
+        body { background: var(--navy); color: white; font-family: -apple-system, sans-serif; margin: 0; padding: 15px; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: sticky; top: 0; background: var(--navy); z-index: 100; padding: 10px 0; }
+        .back-btn { color: var(--blue); text-decoration: none; font-weight: bold; font-size: 14px; }
+        .view-toggle { display: flex; background: #002d62; border-radius: 10px; padding: 4px; border: 1px solid rgba(255,255,255,0.1); }
+        .toggle-btn { padding: 8px 15px; border: none; border-radius: 8px; background: transparent; color: var(--text); font-size: 12px; cursor: pointer; }
+        .toggle-btn.active { background: var(--blue); color: white; }
+
+        /* Timeline View */
+        .card { background: #002d62; border-radius: 20px; padding: 18px; margin-bottom: 12px; border-left: 5px solid var(--blue); position: relative; }
+        .time { color: var(--blue); font-weight: bold; }
+        .name { font-size: 19px; display: block; margin: 5px 0; }
+        .call-btn { display: inline-flex; align-items: center; background: #28a745; color: white; text-decoration: none; padding: 8px 15px; border-radius: 10px; font-size: 13px; margin-top: 10px; font-weight: bold; }
+        
+        /* Month View (Full Year Scroll) */
+        .month-section { margin-bottom: 40px; background: #002d62; padding: 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        .month-name { color: var(--blue); font-weight: bold; text-align: center; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 2px; }
+        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+        .day-head { font-size: 10px; color: var(--text); text-align: center; padding-bottom: 5px; }
+        .day { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 13px; background: rgba(255,255,255,0.03); border: 1px solid transparent; }
+        
+        /* Status Colors */
+        .status-none { border-color: transparent; }
+        .status-some { background: rgba(255, 204, 0, 0.2); border-color: var(--yellow); color: var(--yellow); } /* Yellow */
+        .status-full { background: rgba(255, 77, 77, 0.2); border-color: var(--red); color: var(--red); }    /* Red */
+
+        .hidden { display: none; }
     </style>
 </head>
 <body>
+
     <div class="header">
-        <a href="/" style="color:var(--blue); text-decoration:none; font-weight:bold;">← กลับหน้าจอง</a>
-        <h2 style="letter-spacing:5px; margin:0; font-weight:200;">MUSE</h2>
+        <a href="/" class="back-btn">← กลับหน้าจอง</a>
+        <div class="view-toggle">
+            <button class="toggle-btn active" id="tList" onclick="show('list')">รายวัน</button>
+            <button class="toggle-btn" id="tMonth" onclick="show('month')">รายเดือน</button>
+        </div>
     </div>
-    <div id="list">กำลังโหลดตาราง...</div>
+
+    <div id="listView"></div>
+
+    <div id="monthView" class="hidden"></div>
+
     <script>
-        async function load() {
+        let bookings = [];
+        const monthNames = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+
+        async function loadData() {
             try {
                 const res = await fetch('/api/bookings');
-                const data = await res.json();
-                const container = document.getElementById('list');
-                if(data.length <= 1) { container.innerHTML = "ยังไม่มีข้อมูลการจอง"; return; }
-                container.innerHTML = '';
-                
-                // Show latest first
-                data.slice(1).reverse().forEach(row => {
-                    const d = new Date(row[2]).toLocaleDateString('th-TH', {day:'numeric', month:'short'});
-                    container.innerHTML += `
-                        <div class="card">
-                            <div class="dur-tag">${row[6]} ชม.</div>
-                            <span class="time">${row[3]} - ${row[4]} | ${d}</span>
-                            <span class="name">${row[1]}</span>
-                            <div class="meta">📱 ${row[5] || '-'} <br> 📝 ${row[7] || '-'}</div>
-                        </div>`;
-                });
-            } catch(e) { document.getElementById('list').innerHTML = "โหลดข้อมูลล้มเหลว"; }
+                bookings = await res.json();
+                renderList();
+                renderYear();
+            } catch (e) { console.error(e); }
         }
-        load();
+
+        function show(v) {
+            document.getElementById('listView').classList.toggle('hidden', v !== 'list');
+            document.getElementById('monthView').classList.toggle('hidden', v !== 'month');
+            document.getElementById('tList').classList.toggle('active', v === 'list');
+            document.getElementById('tMonth').classList.toggle('active', v === 'month');
+        }
+
+        function renderList() {
+            const cont = document.getElementById('listView');
+            if(bookings.length <= 1) return cont.innerHTML = "ไม่มีข้อมูล";
+            cont.innerHTML = '';
+            bookings.slice(1).reverse().forEach(row => {
+                const d = new Date(row[2]).toLocaleDateString('th-TH', {day:'numeric', month:'short'});
+                cont.innerHTML += `
+                    <div class="card">
+                        <span class="time">${row[3]} - ${row[4]} | ${d}</span>
+                        <span class="name">${row[1]}</span>
+                        <div style="font-size:12px; color:var(--text)">📝 ${row[7] || '-'}</div>
+                        <a href="tel:${row[5]}" class="call-btn">📞 โทร: ${row[5]}</a>
+                    </div>`;
+            });
+        }
+
+        function renderYear() {
+            const cont = document.getElementById('monthView');
+            cont.innerHTML = '';
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth();
+
+            // Render every month from current month to December
+            for (let m = currentMonth; m < 12; m++) {
+                const section = document.createElement('div');
+                section.className = 'month-section';
+                section.innerHTML = `<div class="month-name">${monthNames[m]} ${currentYear}</div>`;
+                
+                const grid = document.createElement('div');
+                grid.className = 'grid';
+                ['อา','จ','อ','พ','พฤ','ศ','ส'].forEach(h => grid.innerHTML += `<div class="day-head">${h}</div>`);
+
+                const firstDay = new Date(currentYear, m, 1).getDay();
+                const daysInMonth = new Date(currentYear, m + 1, 0).getDate();
+
+                for(let p=0; p < firstDay; p++) grid.innerHTML += `<div></div>`;
+
+                for(let d=1; d <= daysInMonth; d++) {
+                    const dateStr = `${currentYear}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                    
+                    // Logic: count reservations for this specific day
+                    const count = bookings.filter(r => r[2] && r[2].split('T')[0] === dateStr).length;
+                    
+                    let statusClass = 'status-none';
+                    if (count >= 4) statusClass = 'status-full'; // Red if 4+ bookings
+                    else if (count > 0) statusClass = 'status-some'; // Yellow if 1-3 bookings
+
+                    grid.innerHTML += `<div class="day ${statusClass}">${d}</div>`;
+                }
+                section.appendChild(grid);
+                cont.appendChild(section);
+            }
+        }
+
+        loadData();
     </script>
 </body>
 </html>
