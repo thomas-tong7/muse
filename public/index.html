@@ -1,23 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muse | Internal</title>
+    <title>Muse | จองคิว</title>
     <style>
         :root { --muse-navy: #001e43; --muse-blue: #00a8ff; --text-muted: #81a1c1; }
-        body { background: var(--muse-navy); color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow: hidden; }
-        .muse-card { width: 90%; max-width: 380px; background: #002d62; padding: 40px 30px; border-radius: 28px; border: 1px solid rgba(0, 168, 255, 0.2); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
-        .logo { text-align: center; font-size: 32px; font-weight: 200; letter-spacing: 10px; margin-bottom: 40px; color: var(--muse-blue); }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); }
-        input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #1e3a5f; background: #001e43; color: white; font-size: 16px; box-sizing: border-box; outline: none; transition: 0.3s; }
-        input:focus { border-color: var(--muse-blue); box-shadow: 0 0 10px rgba(0, 168, 255, 0.2); }
-        .slot-info { background: rgba(0, 168, 255, 0.05); padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 30px; border: 1px dashed rgba(0, 168, 255, 0.3); }
+        body { background: var(--muse-navy); color: white; font-family: 'Tahoma', sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        .muse-card { width: 100%; max-width: 400px; background: #002d62; padding: 30px; border-radius: 28px; border: 1px solid rgba(0, 168, 255, 0.2); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .logo { text-align: center; font-size: 32px; font-weight: 200; letter-spacing: 10px; margin-bottom: 30px; color: var(--muse-blue); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 8px; font-size: 13px; color: var(--text-muted); }
+        input, select, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #1e3a5f; background: #001e43; color: white; font-size: 16px; box-sizing: border-box; outline: none; }
+        .slot-info { background: rgba(0, 168, 255, 0.1); padding: 15px; border-radius: 12px; text-align: center; margin: 20px 0; border: 1px dashed var(--muse-blue); }
         #timeRange { font-weight: bold; color: var(--muse-blue); font-size: 18px; }
-        .btn-reserve { width: 100%; padding: 18px; background: var(--muse-blue); color: white; border: none; border-radius: 12px; font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.3s; }
-        .btn-reserve:active { transform: scale(0.96); }
-        .btn-reserve:disabled { background: #1e3a5f; opacity: 0.6; }
+        .btn-reserve { width: 100%; padding: 18px; background: var(--muse-blue); color: white; border: none; border-radius: 12px; font-weight: 600; font-size: 18px; cursor: pointer; margin-bottom: 15px; }
+        .nav-link { color: var(--text-muted); text-decoration: none; font-size: 14px; display: block; text-align: center; }
     </style>
 </head>
 <body>
@@ -25,67 +23,92 @@
         <div class="logo">MUSE</div>
         
         <div class="form-group">
-            <label>Reserved By</label>
-            <input type="text" id="name" placeholder="Name">
+            <label>ชื่อผู้จอง</label>
+            <input type="text" id="name" placeholder="ระบุชื่อ">
         </div>
 
         <div class="form-group">
-            <label>Date</label>
+            <label>เบอร์โทรศัพท์</label>
+            <input type="tel" id="mobile" placeholder="08x-xxx-xxxx">
+        </div>
+
+        <div class="form-group">
+            <label>วันที่</label>
             <input type="date" id="date">
         </div>
 
+        <div style="display: flex; gap: 10px;">
+            <div class="form-group" style="flex: 2;">
+                <label>เวลาเริ่ม</label>
+                <input type="time" id="startTime" oninput="updateRange()">
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label>ระยะเวลา (ชม.)</label>
+                <select id="duration" onchange="updateRange()">
+                    <option value="1">1 ชม.</option>
+                    <option value="2" selected>2 ชม.</option>
+                    <option value="3">3 ชม.</option>
+                    <option value="4">4 ชม.</option>
+                    <option value="5">5 ชม.</option>
+                </select>
+            </div>
+        </div>
+
         <div class="form-group">
-            <label>Start Time</label>
-            <input type="time" id="startTime" oninput="updateRange()">
+            <label>หมายเหตุ</label>
+            <textarea id="notes" rows="2" placeholder="เพิ่มเติม..."></textarea>
         </div>
 
         <div class="slot-info">
-            <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 5px; letter-spacing: 1px;">2-HOUR DURATION</div>
-            <span id="timeRange">00:00 — 00:00</span>
+            <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">เวลาที่ล็อคไว้</div>
+            <span id="timeRange">กรุณาเลือกเวลา</span>
         </div>
 
-        <button class="btn-reserve" onclick="submitToMuse()">CONFIRM BOOKING</button>
+        <button class="btn-reserve" onclick="submitToMuse()">ยืนยันการจอง</button>
+        <a href="/calendar.html" class="nav-link">📅 ดูปฏิทินการจอง</a>
     </div>
 
     <script>
         function updateRange() {
             const start = document.getElementById('startTime').value;
+            const dur = parseInt(document.getElementById('duration').value);
             if (!start) return;
             let [h, m] = start.split(':');
-            let endH = (parseInt(h) + 2).toString().padStart(2, '0');
-            // Logic for rolling over midnight if necessary
+            let endH = (parseInt(h) + dur).toString().padStart(2, '0');
             if (parseInt(endH) >= 24) endH = (parseInt(endH) - 24).toString().padStart(2, '0');
             document.getElementById('timeRange').innerText = `${start} — ${endH}:${m}`;
+            return `${endH}:${m}`;
         }
 
         async function submitToMuse() {
+            const endTime = updateRange();
             const payload = {
                 name: document.getElementById('name').value,
+                mobile: document.getElementById('mobile').value,
                 date: document.getElementById('date').value,
-                startTime: document.getElementById('startTime').value
+                startTime: document.getElementById('startTime').value,
+                endTime: endTime,
+                duration: document.getElementById('duration').value,
+                notes: document.getElementById('notes').value
             };
 
-            if (!payload.name || !payload.date || !payload.startTime) {
-                alert("Please fill all fields.");
-                return;
-            }
+            if (!payload.name || !payload.date || !payload.startTime) return alert("กรุณากรอกข้อมูลให้ครบถ้วน");
 
             const btn = document.querySelector('.btn-reserve');
-            btn.innerText = "SENDING...";
+            btn.innerText = "กำลังบันทึก...";
             btn.disabled = true;
 
             try {
-                const response = await fetch('/api/reserve', {
+                await fetch('/api/reserve', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                const result = await response.json();
-                alert("Muse Updated Successfully.");
+                alert("บันทึกข้อมูลสำเร็จ!");
                 location.reload();
             } catch (err) {
-                alert("Connection failed. Try again.");
-                btn.innerText = "CONFIRM BOOKING";
+                alert("เกิดข้อผิดพลาด");
+                btn.innerText = "ยืนยันการจอง";
                 btn.disabled = false;
             }
         }
