@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muse | ปฏิทิน</title>
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+    <style>
+        body { background: #001e43; color: white; font-family: sans-serif; padding: 10px; }
+        .container { max-width: 800px; margin: auto; background: white; color: black; padding: 15px; border-radius: 15px; }
+    </style>
+</head>
+<body>
+    <div style="display:flex; justify-content:space-between; padding:10px;">
+        <a href="/" style="color:#00a8ff; text-decoration:none;">← กลับหน้าจอง</a>
+        <h2>MUSE CALENDAR</h2>
+    </div>
+    <div class="container"><div id='calendar'></div></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const res = await fetch('/api/bookings');
+            const data = await res.json();
+            // Format data for FullCalendar
+            const events = data.slice(1).map(row => ({
+                title: row[1],
+                start: row[2].split('T')[0] + 'T' + row[3],
+                end: row[2].split('T')[0] + 'T' + row[4]
+            }));
+            var calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+                initialView: 'timeGridDay',
+                events: events,
+                locale: 'th',
+                slotMinTime: '08:00:00'
+            });
+            calendar.render();
+        });
+    </script>
+</body>
+</html>
