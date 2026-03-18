@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muse | Internal</title>
+    <style>
+        :root { --muse-navy: #001e43; --muse-blue: #00a8ff; --text-muted: #81a1c1; }
+        body { background: var(--muse-navy); color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow: hidden; }
+        .muse-card { width: 90%; max-width: 380px; background: #002d62; padding: 40px 30px; border-radius: 28px; border: 1px solid rgba(0, 168, 255, 0.2); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .logo { text-align: center; font-size: 32px; font-weight: 200; letter-spacing: 10px; margin-bottom: 40px; color: var(--muse-blue); }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); }
+        input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #1e3a5f; background: #001e43; color: white; font-size: 16px; box-sizing: border-box; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--muse-blue); box-shadow: 0 0 10px rgba(0, 168, 255, 0.2); }
+        .slot-info { background: rgba(0, 168, 255, 0.05); padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 30px; border: 1px dashed rgba(0, 168, 255, 0.3); }
+        #timeRange { font-weight: bold; color: var(--muse-blue); font-size: 18px; }
+        .btn-reserve { width: 100%; padding: 18px; background: var(--muse-blue); color: white; border: none; border-radius: 12px; font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.3s; }
+        .btn-reserve:active { transform: scale(0.96); }
+        .btn-reserve:disabled { background: #1e3a5f; opacity: 0.6; }
+    </style>
+</head>
+<body>
+    <div class="muse-card">
+        <div class="logo">MUSE</div>
+        
+        <div class="form-group">
+            <label>Reserved By</label>
+            <input type="text" id="name" placeholder="Name">
+        </div>
+
+        <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="date">
+        </div>
+
+        <div class="form-group">
+            <label>Start Time</label>
+            <input type="time" id="startTime" oninput="updateRange()">
+        </div>
+
+        <div class="slot-info">
+            <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 5px; letter-spacing: 1px;">2-HOUR DURATION</div>
+            <span id="timeRange">00:00 — 00:00</span>
+        </div>
+
+        <button class="btn-reserve" onclick="submitToMuse()">CONFIRM BOOKING</button>
+    </div>
+
+    <script>
+        function updateRange() {
+            const start = document.getElementById('startTime').value;
+            if (!start) return;
+            let [h, m] = start.split(':');
+            let endH = (parseInt(h) + 2).toString().padStart(2, '0');
+            // Logic for rolling over midnight if necessary
+            if (parseInt(endH) >= 24) endH = (parseInt(endH) - 24).toString().padStart(2, '0');
+            document.getElementById('timeRange').innerText = `${start} — ${endH}:${m}`;
+        }
+
+        async function submitToMuse() {
+            const payload = {
+                name: document.getElementById('name').value,
+                date: document.getElementById('date').value,
+                startTime: document.getElementById('startTime').value
+            };
+
+            if (!payload.name || !payload.date || !payload.startTime) {
+                alert("Please fill all fields.");
+                return;
+            }
+
+            const btn = document.querySelector('.btn-reserve');
+            btn.innerText = "SENDING...";
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/reserve', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                alert("Muse Updated Successfully.");
+                location.reload();
+            } catch (err) {
+                alert("Connection failed. Try again.");
+                btn.innerText = "CONFIRM BOOKING";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
