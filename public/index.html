@@ -6,35 +6,36 @@
     <title>Muse | จองคิว</title>
     <style>
         :root { --bg: #121212; --card: #1c1c1e; --blue: #0a84ff; --text: #ffffff; }
-        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; padding: 10px; display: flex; justify-content: center; min-height: 100vh; align-items: center; }
-        .card { width: 100%; max-width: 340px; background: var(--card); padding: 20px; border-radius: 18px; text-align: center; }
-        .logo { font-size: 24px; letter-spacing: 6px; margin-bottom: 20px; font-weight: 200; }
+        * { box-sizing: border-box; touch-action: manipulation; }
+        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; padding: 10px; display: flex; justify-content: center; min-height: 100vh; align-items: center; overflow: hidden; }
+        .card { width: 100%; max-width: 320px; background: var(--card); padding: 25px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+        .logo { font-size: 22px; letter-spacing: 8px; margin-bottom: 20px; font-weight: 200; }
         .group { margin-bottom: 12px; text-align: left; }
-        label { font-size: 10px; color: #8e8e93; margin-left: 5px; text-transform: uppercase; }
-        input, select, textarea { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #3a3a3c; background: #2c2c2e; color: white; font-size: 14px; box-sizing: border-box; }
-        .flex { display: flex; gap: 8px; }
-        .btn { width: 100%; padding: 14px; background: var(--blue); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; margin-top: 10px; }
-        .nav { display: block; margin-top: 15px; color: var(--blue); text-decoration: none; font-size: 13px; }
+        label { font-size: 10px; color: #8e8e93; margin-left: 5px; display: block; }
+        input, select, textarea { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #3a3a3c; background: #2c2c2e; color: white; font-size: 16px; outline: none; }
+        .flex { display: flex; gap: 10px; }
+        .btn { width: 100%; padding: 16px; background: var(--blue); color: white; border: none; border-radius: 14px; font-weight: bold; font-size: 16px; margin-top: 10px; }
+        .nav { display: block; margin-top: 20px; color: var(--blue); text-decoration: none; font-size: 13px; }
     </style>
 </head>
 <body>
     <div class="card">
         <div class="logo">MUSE</div>
-        <div class="group"><label>ชื่อ</label><input type="text" id="n"></div>
+        <div class="group"><label>ชื่อ (NAME)</label><input type="text" id="n"></div>
         <div class="group"><label>เบอร์โทร</label><input type="tel" id="m"></div>
         <div class="group"><label>วันที่</label><input type="date" id="d"></div>
         <div class="flex">
             <div style="flex:2"><label>เริ่ม</label><input type="time" id="s"></div>
             <div style="flex:1"><label>ชม.</label><select id="dur"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></div>
         </div>
-        <div class="group"><label>หมายเหตุ</label><textarea id="note" rows="1"></textarea></div>
-        <button class="btn" onclick="save()">ยืนยัน</button>
-        <a href="/calendar.html" class="nav">📅 ดูตาราง</a>
+        <div class="group"><textarea id="note" rows="1" placeholder="หมายเหตุ..."></textarea></div>
+        <button class="btn" onclick="save()">ยืนยันการจอง</button>
+        <a href="/calendar.html" class="nav">📅 ดูตารางงาน</a>
     </div>
     <script>
         async function save() {
             const n=document.getElementById('n').value, s=document.getElementById('s').value, d=document.getElementById('d').value;
-            if(!n || !s || !d) return alert("ครบถ้วน?");
+            if(!n || !s || !d) return alert("กรุณากรอกข้อมูล");
             const dur=parseInt(document.getElementById('dur').value);
             let [h, m]=s.split(':');
             let end=`${String((parseInt(h)+dur)%24).padStart(2,'0')}:${m}`;
