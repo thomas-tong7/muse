@@ -16,19 +16,25 @@
 
         /* Timeline Layout shifted right */
         .timeline { width: 100%; max-width: 350px; position: relative; padding-left: 85px; border-left: 2px solid #ffffff; margin-top: 25px; margin-left: 20px; }
+        
+        /* Column C Placement */
         .date-side { position: absolute; left: -75px; width: 65px; color: white; font-size: 11px; font-weight: 300; text-align: center; line-height: 1.4; padding-top: 5px; }
         
-        /* Card Design */
-        .card { background: var(--card); border-radius: 20px; padding: 18px; margin-bottom: 15px; position: relative; border: 1px solid rgba(255,255,255,0.03); width: 100%; }
-        .card-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px; }
-        .name { font-size: 20px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
-        .app-time { font-size: 18px; font-weight: 300; color: #ffffff; }
+        /* Card Design matching user drawing */
+        .card { background: var(--card); border-radius: 20px; padding: 18px; margin-bottom: 15px; position: relative; border: 1px solid rgba(255,255,255,0.03); width: 100%; min-height: 100px; display: flex; flex-direction: column; justify-content: space-around; }
         
-        .card-footer { display: flex; justify-content: space-between; align-items: center; }
-        .note { font-size: 13px; color: #ffffff; opacity: 0.9; }
-        .phone-btn { font-size: 12px; color: white; text-decoration: none; border: 1px solid white; padding: 4px 10px; border-radius: 8px; font-weight: bold; }
+        /* Top Row: Column B and Column F */
+        .card-row-top { display: flex; justify-content: space-between; align-items: center; padding-right: 40px; }
+        .col-b { font-size: 18px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .phone-link { font-size: 14px; color: white; text-decoration: none; border: 1px solid white; padding: 3px 8px; border-radius: 8px; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; }
         
-        .trash { background: none; border: 1px solid #ffffff; color: white; border-radius: 6px; padding: 4px 8px; font-size: 14px; position: absolute; top: 15px; right: 15px; }
+        /* Bottom Row: Column D and Column H */
+        .card-row-bottom { display: flex; justify-content: space-between; align-items: center; padding-right: 40px; margin-top: 10px; }
+        .col-d { font-size: 16px; font-weight: 300; color: #ffffff; }
+        .col-h { font-size: 14px; color: #ffffff; opacity: 0.9; font-style: italic; }
+        
+        /* Delete button matching trash bin icon placement */
+        .trash { background: none; border: none; color: white; font-size: 24px; position: absolute; top: 50%; right: 15px; transform: translateY(-50%); cursor: pointer; padding: 5px; }
 
         .cal-box { width: 100%; max-width: 350px; background: var(--card); border-radius: 20px; padding: 15px; margin-bottom: 20px; }
         .m-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
@@ -41,7 +47,10 @@
 <body>
     <div class="header">
         <a href="/" style="color:var(--blue); text-decoration:none; font-size:13px; font-weight:bold;">← หน้าจอง</a>
-        <div class="toggle"><button class="t-btn active" id="bL" onclick="v('L')">รายการ</button><button class="t-btn" id="bM" onclick="v('M')">ปฏิทิน</button></div>
+        <div class="toggle">
+            <button class="t-btn active" id="bL" onclick="v('L')">รายการ</button>
+            <button class="t-btn" id="bM" onclick="v('M')">ปฏิทิน</button>
+        </div>
     </div>
 
     <div id="LView" class="timeline"></div>
@@ -66,26 +75,30 @@
         function renderList() {
             const cont = document.getElementById('LView'); cont.innerHTML = '';
             let lastD = "";
-            // Use appointment time from row[3] instead of timestamp row[0]
+            
+            // Database Columns: 0: Timestamp, 1: Name (B), 2: Date (C), 3: Start (D), 4: End, 5: Mobile (F), 6: Dur, 7: Note (H)
             bookings.slice(1).forEach(r => {
                 const [ts, name, date, start, end, mob, dur, note] = r;
-                const dObj = new Date(date);
+                const datePart = date ? date.split('T')[0] : "";
+                const dObj = new Date(datePart);
                 const dStr = dObj.toLocaleDateString('th-TH', {day:'numeric', month:'short'});
-                if (date !== lastD) {
-                    cont.innerHTML += `<div class="date-side" id="date-${date}">${dStr.replace(' ','<br>')}</div>`;
-                    lastD = date;
+                
+                if (datePart !== lastD) {
+                    cont.innerHTML += `<div class="date-side" id="date-${datePart}">${dStr.replace(' ','<br>')}</div>`;
+                    lastD = datePart;
                 }
+                
                 cont.innerHTML += `
                     <div class="card">
-                        <div class="card-header">
-                            <span class="name">${name}</span>
-                            <span class="app-time">${start}</span>
+                        <div class="card-row-top">
+                            <span class="col-b">${name}</span>
+                            <a href="tel:${mob}" class="phone-link">📞 ${mob}</a>
                         </div>
-                        <div class="card-footer">
-                            <a href="tel:${mob}" class="phone-btn">📞 โทร</a>
-                            <span class="note">${note || '-'}</span>
+                        <div class="card-row-bottom">
+                            <span class="col-d">${start} น.</span>
+                            <span class="col-h">${note || '-'}</span>
                         </div>
-                        <button class="trash" onclick="del('${name}','${start}','${dStr}')">🗑️</button>
+                        <button class="trash" onclick="del('${name}','${start}','${dStr}','${datePart}')">🗑️</button>
                     </div>`;
             });
         }
@@ -110,10 +123,15 @@
         }
 
         function go(d) { v('L'); setTimeout(() => document.getElementById(`date-${d}`)?.scrollIntoView({behavior:'smooth'}), 100); }
-        async function del(n, s, dStr) {
-            if(confirm(`ต้องการลบการจอง ${n} เวลา ${s} (${dStr})?`)) {
-                await fetch('/api/reserve', {method:'POST', headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({action:'delete', name:n, startTime:s})});
+        
+        async function del(n, s, dStr, dRaw) {
+            // Confirmation alert localized in Thai as requested: 'ต้องการลบการจอง (Name) , (time) , (date month)'
+            if(confirm(`ต้องการลบการจอง ${n} , ${s} , ${dStr}?`)) {
+                await fetch('/api/reserve', {
+                    method:'POST', 
+                    headers:{'Content-Type':'application/json'},
+                    body:JSON.stringify({action:'delete', name:n, startTime:s, datePart: dRaw})
+                });
                 location.reload();
             }
         }
