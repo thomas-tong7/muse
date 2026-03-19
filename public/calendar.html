@@ -2,45 +2,48 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Muse | Schedule</title>
     <style>
         :root { --bg: #121212; --card: #1c1c1e; --blue: #0a84ff; --red: #ff453a; }
+        * { touch-action: manipulation; }
         body { background: var(--bg); color: white; font-family: -apple-system, sans-serif; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        .header { width: 100%; max-width: 360px; display: flex; justify-content: space-between; padding: 10px 0; position: sticky; top: 0; background: var(--bg); z-index: 5; }
+        
+        .header { width: 100%; max-width: 350px; display: flex; justify-content: space-between; padding: 10px 0; position: sticky; top: 0; background: var(--bg); z-index: 10; border-bottom: 1px solid #2c2c2e; }
         .toggle { display: flex; background: #2c2c2e; border-radius: 8px; padding: 2px; }
-        .t-btn { padding: 5px 12px; border: none; border-radius: 6px; background: transparent; color: #8e8e93; font-size: 11px; }
+        .t-btn { padding: 6px 14px; border: none; border-radius: 6px; background: transparent; color: #8e8e93; font-size: 12px; }
         .t-btn.active { background: #48484a; color: white; }
 
         /* Timeline Layout */
-        .timeline-container { width: 100%; max-width: 360px; position: relative; padding-left: 50px; border-left: 2px solid #ffffff; margin-top: 10px; box-sizing: border-box; }
-        .date-label { position: absolute; left: -45px; width: 40px; color: white; font-size: 10px; font-weight: 300; margin-top: 15px; text-align: center; line-height: 1.2; }
+        .timeline { width: 100%; max-width: 350px; position: relative; padding-left: 60px; border-left: 2px solid #ffffff; margin-top: 20px; box-sizing: border-box; }
+        .date-side { position: absolute; left: -55px; width: 50px; color: white; font-size: 11px; font-weight: 300; text-align: center; line-height: 1.3; }
         
-        /* Card Design as per Layout */
-        .card { background: var(--card); border-radius: 20px; padding: 15px; margin-bottom: 12px; position: relative; display: flex; flex-direction: column; }
-        .card-row-top { display: flex; align-items: baseline; gap: 10px; }
-        .name-txt { font-size: 20px; font-weight: bold; }
-        .time-txt { font-size: 18px; font-weight: 400; }
-        .card-row-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
-        .mob-txt { font-size: 13px; color: white; text-decoration: none; }
-        .note-txt { font-size: 13px; color: white; }
-        .trash { color: #ffffff; background: none; border: 1px solid #ffffff; border-radius: 6px; padding: 4px; font-size: 16px; position: absolute; right: 15px; top: 20px; }
+        .card { background: var(--card); border-radius: 20px; padding: 15px; margin-bottom: 15px; position: relative; border: 1px solid rgba(255,255,255,0.03); }
+        .card-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+        .name { font-size: 20px; font-weight: bold; }
+        .app-time { font-size: 18px; font-weight: 300; color: #ffffff; }
+        
+        .card-footer { display: flex; justify-content: space-between; align-items: center; }
+        .note { font-size: 13px; color: #ffffff; }
+        .phone { font-size: 13px; color: white; text-decoration: none; border: 1px solid white; padding: 2px 8px; border-radius: 8px; }
+        
+        .trash { background: none; border: 1px solid #ffffff; color: white; border-radius: 6px; padding: 4px 8px; font-size: 14px; position: absolute; top: 15px; right: 15px; }
 
-        /* Month Grid */
-        .m-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; width: 340px; background: var(--card); padding: 10px; border-radius: 15px; margin-bottom: 20px; }
-        .day { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 12px; }
-        .status-some { background: rgba(255, 214, 10, 0.2); color: #ffd60a; }
-        .status-full { background: rgba(255, 69, 58, 0.2); color: var(--red); }
+        .cal-box { width: 100%; max-width: 350px; background: var(--card); border-radius: 20px; padding: 15px; margin-bottom: 20px; }
+        .m-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
+        .day { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 13px; }
+        .s-some { background: rgba(255, 214, 10, 0.2); color: #ffd60a; border: 1px solid #ffd60a; }
+        .s-full { background: rgba(255, 69, 58, 0.2); color: var(--red); border: 1px solid var(--red); }
         .hidden { display: none; }
     </style>
 </head>
 <body>
     <div class="header">
-        <a href="/" style="color:var(--blue); text-decoration:none; font-size:12px;">← จอง</a>
+        <a href="/" style="color:var(--blue); text-decoration:none; font-size:13px; font-weight:bold;">← หน้าจอง</a>
         <div class="toggle"><button class="t-btn active" id="bL" onclick="v('L')">รายการ</button><button class="t-btn" id="bM" onclick="v('M')">ปฏิทิน</button></div>
     </div>
 
-    <div id="LView" class="timeline-container"></div>
+    <div id="LView" class="timeline"></div>
     <div id="MView" class="hidden"></div>
 
     <script>
@@ -49,7 +52,7 @@
             const res = await fetch('/api/bookings');
             bookings = await res.json();
             renderList();
-            renderMonths();
+            renderCalendar();
         }
 
         function v(t) {
@@ -60,51 +63,55 @@
         }
 
         function renderList() {
-            const container = document.getElementById('LView'); container.innerHTML = '';
+            const cont = document.getElementById('LView'); cont.innerHTML = '';
             let lastD = "";
             bookings.slice(1).forEach(r => {
                 const [ts, name, date, start, end, mob, dur, note] = r;
                 const dObj = new Date(date);
                 const dStr = dObj.toLocaleDateString('th-TH', {day:'numeric', month:'short'});
                 if (date !== lastD) {
-                    container.innerHTML += `<div class="date-label" id="date-${date}">${dStr.replace(' ','<br>')}</div>`;
+                    cont.innerHTML += `<div class="date-side" id="date-${date}">${dStr.replace(' ','<br>')}</div>`;
                     lastD = date;
                 }
-                container.innerHTML += `
+                cont.innerHTML += `
                     <div class="card">
-                        <div class="card-row-top"><span class="name-txt">${name}</span> <span class="time-txt">${start}</span></div>
-                        <div class="card-row-bottom">
-                            <a href="tel:${mob}" class="mob-txt">${mob}</a>
-                            <span class="note-txt">${note || '-'}</span>
+                        <div class="card-header">
+                            <span class="name">${name}</span>
+                            <span class="app-time">${start}</span>
                         </div>
-                        <button class="trash" onclick="del('${name}','${start}','${date}','${dStr}')">🗑️</button>
+                        <div class="card-footer">
+                            <a href="tel:${mob}" class="phone">📞 โทร</a>
+                            <span class="note">${note || '-'}</span>
+                        </div>
+                        <button class="trash" onclick="del('${name}','${start}','${dStr}')">🗑️</button>
                     </div>`;
             });
         }
 
-        function renderMonths() {
-            const container = document.getElementById('MView'); container.innerHTML = '';
+        function renderCalendar() {
+            const cont = document.getElementById('MView'); cont.innerHTML = '';
             const now = new Date();
             for(let m=now.getMonth(); m<12; m++) {
+                const box = document.createElement('div'); box.className = 'cal-box';
                 const grid = document.createElement('div'); grid.className = 'm-grid';
                 const days = new Date(2026, m+1, 0).getDate();
+                box.innerHTML = `<div style="text-align:center; color:var(--blue); margin-bottom:10px; font-weight:bold;">${new Date(2026, m).toLocaleDateString('th-TH', {month:'long'})}</div>`;
                 for(let d=1; d<=days; d++) {
                     const ds = `2026-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-                    const count = bookings.filter(b => b[2] && b[2].toString().includes(ds)).length;
+                    const count = bookings.filter(b => b[2] && b[2].includes(ds)).length;
                     let cls = "";
-                    if(count >= 4) cls = "status-full"; else if(count > 0) cls = "status-some";
+                    if(count >= 4) cls = "s-full"; else if(count > 0) cls = "s-some";
                     grid.innerHTML += `<div class="day ${cls}" ${count > 0 ? `onclick="go('${ds}')"` : ''}>${d}</div>`;
                 }
-                container.appendChild(grid);
+                box.appendChild(grid); cont.appendChild(box);
             }
         }
 
         function go(d) { v('L'); setTimeout(() => document.getElementById(`date-${d}`)?.scrollIntoView({behavior:'smooth'}), 100); }
-
-        async function del(n, s, dFull, dShort) {
-            if(confirm(`ต้องการลบการจอง ${n} ${s} ${dShort}?`)) {
+        async function del(n, s, dStr) {
+            if(confirm(`ต้องการลบการจอง ${n} เวลา ${s} (${dStr})?`)) {
                 await fetch('/api/reserve', {method:'POST', headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({action:'delete', name:n, startTime:s, datePart:dFull.split('T')[0]})});
+                body:JSON.stringify({action:'delete', name:n, startTime:s})});
                 location.reload();
             }
         }
