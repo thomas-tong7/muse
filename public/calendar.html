@@ -6,26 +6,27 @@
     <title>Muse | Schedule</title>
     <style>
         :root { --bg: #121212; --card: #1c1c1e; --blue: #0a84ff; --red: #ff453a; }
-        * { touch-action: manipulation; }
+        * { touch-action: manipulation; box-sizing: border-box; }
         body { background: var(--bg); color: white; font-family: -apple-system, sans-serif; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
         
         .header { width: 100%; max-width: 350px; display: flex; justify-content: space-between; padding: 10px 0; position: sticky; top: 0; background: var(--bg); z-index: 10; border-bottom: 1px solid #2c2c2e; }
         .toggle { display: flex; background: #2c2c2e; border-radius: 8px; padding: 2px; }
-        .t-btn { padding: 6px 14px; border: none; border-radius: 6px; background: transparent; color: #8e8e93; font-size: 12px; }
+        .t-btn { padding: 6px 14px; border: none; border-radius: 6px; background: transparent; color: #8e8e93; font-size: 12px; outline: none; }
         .t-btn.active { background: #48484a; color: white; }
 
-        /* Timeline Layout */
-        .timeline { width: 100%; max-width: 350px; position: relative; padding-left: 60px; border-left: 2px solid #ffffff; margin-top: 20px; box-sizing: border-box; }
-        .date-side { position: absolute; left: -55px; width: 50px; color: white; font-size: 11px; font-weight: 300; text-align: center; line-height: 1.3; }
+        /* Timeline Layout shifted right */
+        .timeline { width: 100%; max-width: 350px; position: relative; padding-left: 85px; border-left: 2px solid #ffffff; margin-top: 25px; margin-left: 20px; }
+        .date-side { position: absolute; left: -75px; width: 65px; color: white; font-size: 11px; font-weight: 300; text-align: center; line-height: 1.4; padding-top: 5px; }
         
-        .card { background: var(--card); border-radius: 20px; padding: 15px; margin-bottom: 15px; position: relative; border: 1px solid rgba(255,255,255,0.03); }
-        .card-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
-        .name { font-size: 20px; font-weight: bold; }
+        /* Card Design */
+        .card { background: var(--card); border-radius: 20px; padding: 18px; margin-bottom: 15px; position: relative; border: 1px solid rgba(255,255,255,0.03); width: 100%; }
+        .card-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px; }
+        .name { font-size: 20px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
         .app-time { font-size: 18px; font-weight: 300; color: #ffffff; }
         
         .card-footer { display: flex; justify-content: space-between; align-items: center; }
-        .note { font-size: 13px; color: #ffffff; }
-        .phone { font-size: 13px; color: white; text-decoration: none; border: 1px solid white; padding: 2px 8px; border-radius: 8px; }
+        .note { font-size: 13px; color: #ffffff; opacity: 0.9; }
+        .phone-btn { font-size: 12px; color: white; text-decoration: none; border: 1px solid white; padding: 4px 10px; border-radius: 8px; font-weight: bold; }
         
         .trash { background: none; border: 1px solid #ffffff; color: white; border-radius: 6px; padding: 4px 8px; font-size: 14px; position: absolute; top: 15px; right: 15px; }
 
@@ -65,6 +66,7 @@
         function renderList() {
             const cont = document.getElementById('LView'); cont.innerHTML = '';
             let lastD = "";
+            // Use appointment time from row[3] instead of timestamp row[0]
             bookings.slice(1).forEach(r => {
                 const [ts, name, date, start, end, mob, dur, note] = r;
                 const dObj = new Date(date);
@@ -80,7 +82,7 @@
                             <span class="app-time">${start}</span>
                         </div>
                         <div class="card-footer">
-                            <a href="tel:${mob}" class="phone">📞 โทร</a>
+                            <a href="tel:${mob}" class="phone-btn">📞 โทร</a>
                             <span class="note">${note || '-'}</span>
                         </div>
                         <button class="trash" onclick="del('${name}','${start}','${dStr}')">🗑️</button>
