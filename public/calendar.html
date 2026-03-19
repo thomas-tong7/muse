@@ -14,26 +14,23 @@
         .t-btn { padding: 6px 14px; border: none; border-radius: 6px; background: transparent; color: #8e8e93; font-size: 12px; outline: none; }
         .t-btn.active { background: #48484a; color: white; }
 
-        /* Timeline Layout - Pushed further right to reveal Column C */
-        .timeline { width: 100%; max-width: 350px; position: relative; padding-left: 95px; border-left: 2px solid #ffffff; margin-top: 25px; margin-left: 25px; }
+        /* Timeline Layout - Line is now closer to the left edge */
+        .timeline { width: 100%; max-width: 350px; position: relative; padding-left: 25px; border-left: 5px solid #ffffff; margin-top: 25px; margin-left: 10px; }
         
-        /* Column C Placement - Adjusted to ensure visibility */
-        .date-side { position: absolute; left: -85px; width: 75px; color: white; font-size: 11px; font-weight: bold; text-align: center; line-height: 1.4; padding-top: 5px; }
+        /* Column C (Date Header) - Now inside the timeline on the right of the line */
+        .date-header { color: var(--blue); font-size: 14px; font-weight: bold; margin: 20px 0 10px 0; letter-spacing: 1px; display: block; }
         
-        /* Card Design matching your requested layout */
+        /* Card Design */
         .card { background: var(--card); border-radius: 20px; padding: 18px; margin-bottom: 15px; position: relative; border: 1px solid rgba(255,255,255,0.03); width: 100%; display: flex; flex-direction: column; }
         
-        /* Top Row: Column B and Column F */
         .card-row-top { display: flex; justify-content: space-between; align-items: center; padding-right: 45px; margin-bottom: 12px; }
         .col-b { font-size: 18px; font-weight: bold; }
-        .phone-btn { font-size: 14px; color: white; text-decoration: none; border: 1px solid white; padding: 4px 10px; border-radius: 10px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
+        .phone-btn { font-size: 13px; color: white; text-decoration: none; border: 1px solid white; padding: 4px 10px; border-radius: 10px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
 
-        /* Bottom Row: Column D (Formatted) and Column H */
         .card-row-bottom { display: flex; justify-content: space-between; align-items: center; padding-right: 45px; }
         .col-d { font-size: 17px; font-weight: 500; color: #ffffff; }
-        .col-h { font-size: 13px; color: #aaaaaa; }
+        .col-h { font-size: 13px; color: #aaaaaa; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        /* Delete button placement */
         .trash { background: none; border: none; color: white; font-size: 24px; position: absolute; top: 50%; right: 15px; transform: translateY(-50%); cursor: pointer; }
 
         .cal-box { width: 100%; max-width: 350px; background: var(--card); border-radius: 20px; padding: 15px; margin-bottom: 20px; }
@@ -59,16 +56,13 @@
     <script>
         let bookings = [];
 
-        // Helper to fix the "1899-12-30" bug and show "15.00" format
         function formatTime(val) {
             if (!val) return "-";
             let timeStr = val.toString();
-            // If it's a full ISO string from the sheet, extract the time part
             if (timeStr.includes('T')) {
                 let parts = timeStr.split('T')[1].split(':');
                 return `${parts[0]}.${parts[1]}`;
             }
-            // If it's already HH:mm, just swap colon for dot
             return timeStr.replace(':', '.');
         }
 
@@ -93,17 +87,16 @@
             bookings.slice(1).forEach(r => {
                 const [ts, name, date, start, end, mob, dur, note] = r;
                 
-                // Column C Handling
                 const datePart = date ? date.split('T')[0] : "";
                 const dObj = new Date(datePart);
-                const dStr = dObj.toLocaleDateString('th-TH', {day:'numeric', month:'short'});
+                const dStr = dObj.toLocaleDateString('th-TH', {day:'numeric', month:'long'});
                 
+                // If it's a new day, add the Date Header on the RIGHT of the line
                 if (datePart !== lastD) {
-                    cont.innerHTML += `<div class="date-side" id="date-${datePart}">${dStr.replace(' ','<br>')}</div>`;
+                    cont.innerHTML += `<div class="date-header" id="date-${datePart}">${dStr}</div>`;
                     lastD = datePart;
                 }
                 
-                // Formatted Time for Column D
                 const displayTime = formatTime(start);
                 
                 cont.innerHTML += `
@@ -113,7 +106,7 @@
                             <a href="tel:${mob}" class="phone-btn">📞 ${mob}</a>
                         </div>
                         <div class="card-row-bottom">
-                            <span class="col-d">${displayTime}</span>
+                            <span class="col-d">${displayTime} น.</span>
                             <span class="col-h">${note || '-'}</span>
                         </div>
                         <button class="trash" onclick="del('${name}','${start}','${dStr}','${datePart}')">🗑️</button>
