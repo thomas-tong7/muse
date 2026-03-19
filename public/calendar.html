@@ -14,11 +14,11 @@
         .t-btn { padding: 6px 14px; border: none; border-radius: 6px; background: transparent; color: #8e8e93; font-size: 12px; outline: none; }
         .t-btn.active { background: #48484a; color: white; }
 
-        /* Timeline Layout - Line is now closer to the left edge */
-        .timeline { width: 100%; max-width: 350px; position: relative; padding-left: 25px; border-left: 5px solid #ffffff; margin-top: 25px; margin-left: 10px; }
+        /* Timeline Layout */
+        .timeline { width: 100%; max-width: 350px; position: relative; padding-left: 25px; border-left: 2px solid #ffffff; margin-top: 25px; margin-left: 10px; min-height: 80vh; }
         
-        /* Column C (Date Header) - Now inside the timeline on the right of the line */
-        .date-header { color: var(--blue); font-size: 14px; font-weight: bold; margin: 20px 0 10px 0; letter-spacing: 1px; display: block; }
+        /* Column C (Date Header) */
+        .date-header { color: var(--blue); font-size: 14px; font-weight: bold; margin: 25px 0 10px 0; letter-spacing: 1px; display: block; }
         
         /* Card Design */
         .card { background: var(--card); border-radius: 20px; padding: 18px; margin-bottom: 15px; position: relative; border: 1px solid rgba(255,255,255,0.03); width: 100%; display: flex; flex-direction: column; }
@@ -56,21 +56,39 @@
     <script>
         let bookings = [];
 
+        // ENHANCED TIME FIX: This handles Strings, ISO Dates, and Decimal Time from Sheets
         function formatTime(val) {
             if (!val) return "-";
-            let timeStr = val.toString();
-            if (timeStr.includes('T')) {
-                let parts = timeStr.split('T')[1].split(':');
-                return `${parts[0]}.${parts[1]}`;
+            
+            // 1. If it's an ISO string like "2024-01-01T15:00:00Z"
+            if (typeof val === 'string' && val.includes('T')) {
+                let t = val.split('T')[1];
+                return t.split(':').slice(0,2).join('.');
             }
-            return timeStr.replace(':', '.');
+            
+            // 2. If it's already a clean string like "15:00"
+            if (typeof val === 'string' && val.includes(':')) {
+                return val.replace(':', '.');
+            }
+
+            // 3. If it's a number (Google Sheets time decimal), convert it to HH.mm
+            if (typeof val === 'number') {
+                let totalMinutes = Math.round(val * 24 * 60);
+                let hours = Math.floor(totalMinutes / 60);
+                let minutes = totalMinutes % 60;
+                return `${hours.toString().padStart(2, '0')}.${minutes.toString().padStart(2, '0')}`;
+            }
+
+            return val;
         }
 
         async function load() {
-            const res = await fetch('/api/bookings');
-            bookings = await res.json();
-            renderList();
-            renderCalendar();
+            try {
+                const res = await fetch('/api/bookings');
+                bookings = await res.json();
+                renderList();
+                renderCalendar();
+            } catch(e) { console.error("Load failed", e); }
         }
 
         function v(t) {
@@ -84,15 +102,18 @@
             const cont = document.getElementById('LView'); cont.innerHTML = '';
             let lastD = "";
             
-            bookings.slice(1).forEach(r => {
+            // Skip header row
+            const data = bookings.slice(1);
+
+            data.forEach(r => {
                 const [ts, name, date, start, end, mob, dur, note] = r;
                 
+                // Format Date for Header
                 const datePart = date ? date.split('T')[0] : "";
                 const dObj = new Date(datePart);
                 const dStr = dObj.toLocaleDateString('th-TH', {day:'numeric', month:'long'});
                 
-                // If it's a new day, add the Date Header on the RIGHT of the line
-                if (datePart !== lastD) {
+                if (datePart !== lastD && datePart !== "") {
                     cont.innerHTML += `<div class="date-header" id="date-${datePart}">${dStr}</div>`;
                     lastD = datePart;
                 }
@@ -102,8 +123,8 @@
                 cont.innerHTML += `
                     <div class="card">
                         <div class="card-row-top">
-                            <span class="col-b">${name}</span>
-                            <a href="tel:${mob}" class="phone-btn">📞 ${mob}</a>
+                            <span class="col-b">${name || 'ไม่ระบุชื่อ'}</span>
+                            <a href="tel:${mob}" class="phone-btn">📞 ${mob || 'N/A'}</a>
                         </div>
                         <div class="card-row-bottom">
                             <span class="col-d">${displayTime} น.</span>
@@ -137,7 +158,7 @@
         function go(d) { v('L'); setTimeout(() => document.getElementById(`date-${d}`)?.scrollIntoView({behavior:'smooth'}), 100); }
         
         async function del(n, s, dStr, dRaw) {
-            if(confirm(`ต้องการลบการจอง ${n} , ${s} , ${dStr}?`)) {
+            if(confirm(`ต้องการลบการจอง ${n} , ${formatTime(s)} , ${dStr}?`)) {
                 await fetch('/api/reserve', {
                     method:'POST', 
                     headers:{'Content-Type':'application/json'},
