@@ -5,59 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Muse | จองคิว</title>
     <style>
-        :root { --bg: #1c1c1e; --card: #2c2c2e; --blue: #0a84ff; --text: #ffffff; --muted: #8e8e93; }
-        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
-        .card { width: 100%; max-width: 400px; background: var(--card); padding: 30px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); align-self: center; }
-        .logo { text-align: center; font-size: 32px; letter-spacing: 12px; margin-bottom: 30px; font-weight: 200; color: var(--text); }
-        .group { margin-bottom: 18px; }
-        label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
-        input, select, textarea { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #3a3a3c; background: #3a3a3c; color: white; font-size: 16px; outline: none; }
-        input:focus { border-color: var(--blue); }
-        .flex { display: flex; gap: 12px; }
-        .btn { width: 100%; padding: 18px; background: var(--blue); color: white; border: none; border-radius: 16px; font-weight: bold; font-size: 18px; margin-top: 20px; box-shadow: 0 5px 15px rgba(10, 132, 255, 0.3); }
-        .btn:active { opacity: 0.7; transform: scale(0.98); }
-        .nav { display: block; text-align: center; margin-top: 30px; color: var(--blue); text-decoration: none; font-size: 15px; font-weight: 500; }
+        :root { --bg: #121212; --card: #1c1c1e; --blue: #0a84ff; --text: #ffffff; }
+        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; padding: 10px; display: flex; justify-content: center; min-height: 100vh; align-items: center; }
+        .card { width: 100%; max-width: 340px; background: var(--card); padding: 20px; border-radius: 18px; text-align: center; }
+        .logo { font-size: 24px; letter-spacing: 6px; margin-bottom: 20px; font-weight: 200; }
+        .group { margin-bottom: 12px; text-align: left; }
+        label { font-size: 10px; color: #8e8e93; margin-left: 5px; text-transform: uppercase; }
+        input, select, textarea { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #3a3a3c; background: #2c2c2e; color: white; font-size: 14px; box-sizing: border-box; }
+        .flex { display: flex; gap: 8px; }
+        .btn { width: 100%; padding: 14px; background: var(--blue); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; margin-top: 10px; }
+        .nav { display: block; margin-top: 15px; color: var(--blue); text-decoration: none; font-size: 13px; }
     </style>
 </head>
 <body>
     <div class="card">
         <div class="logo">MUSE</div>
-        <div class="group"><label>ชื่อ (NAME)</label><input type="text" id="n"></div>
-        <div class="group"><label>เบอร์โทร (MOBILE)</label><input type="tel" id="m"></div>
-        <div class="group"><label>วันที่ (DATE)</label><input type="date" id="d"></div>
+        <div class="group"><label>ชื่อ</label><input type="text" id="n"></div>
+        <div class="group"><label>เบอร์โทร</label><input type="tel" id="m"></div>
+        <div class="group"><label>วันที่</label><input type="date" id="d"></div>
         <div class="flex">
-            <div style="flex:2"><label>เริ่ม (START)</label><input type="time" id="s"></div>
-            <div style="flex:1"><label>ชม. (HRS)</label>
-                <select id="dur"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="4">4</option></select>
-            </div>
+            <div style="flex:2"><label>เริ่ม</label><input type="time" id="s"></div>
+            <div style="flex:1"><label>ชม.</label><select id="dur"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></div>
         </div>
-        <div class="group" style="margin-top:10px"><label>หมายเหตุ (NOTES)</label><textarea id="note" rows="2"></textarea></div>
-        <button class="btn" onclick="save()">ยืนยันการจอง</button>
-        <a href="/calendar.html" class="nav">📅 ตารางและปฏิทินงาน</a>
+        <div class="group"><label>หมายเหตุ</label><textarea id="note" rows="1"></textarea></div>
+        <button class="btn" onclick="save()">ยืนยัน</button>
+        <a href="/calendar.html" class="nav">📅 ดูตาราง</a>
     </div>
     <script>
         async function save() {
-            const n = document.getElementById('n').value;
-            const s = document.getElementById('s').value;
-            const d = document.getElementById('d').value;
-            const m = document.getElementById('m').value;
-            if(!n || !s || !d) return alert("กรุณากรอกข้อมูลให้ครบ");
-            
-            const dur = parseInt(document.getElementById('dur').value);
-            let [h, min] = s.split(':');
-            let end = `${String((parseInt(h)+dur)%24).padStart(2,'0')}:${min}`;
-
-            const btn = document.querySelector('.btn');
-            btn.innerText = "กำลังบันทึก..."; btn.disabled = true;
-
+            const n=document.getElementById('n').value, s=document.getElementById('s').value, d=document.getElementById('d').value;
+            if(!n || !s || !d) return alert("ครบถ้วน?");
+            const dur=parseInt(document.getElementById('dur').value);
+            let [h, m]=s.split(':');
+            let end=`${String((parseInt(h)+dur)%24).padStart(2,'0')}:${m}`;
             try {
-                await fetch('/api/reserve', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({name:n, mobile:m, date:d, startTime:s, endTime:end, duration:dur, notes:document.getElementById('note').value})
-                });
-                alert("จองสำเร็จ!"); location.reload();
-            } catch(e) { alert("เกิดข้อผิดพลาด"); btn.innerText = "ยืนยันการจอง"; btn.disabled = false; }
+                await fetch('/api/reserve',{method:'POST',headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({name:n,mobile:document.getElementById('m').value,date:d,startTime:s,endTime:end,duration:dur,notes:document.getElementById('note').value})});
+                alert("สำเร็จ!"); location.reload();
+            } catch(e) { alert("ล้มเหลว"); }
         }
     </script>
 </body>
